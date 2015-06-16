@@ -1,18 +1,26 @@
-from ..value_object import ValueObject, IllegalMutation
-from ..traits import Int
+import unittest
 
 import nose.tools as nt
 
-class VO(ValueObject):
-    id = Int(immutable=True)
+from ..value_object import ValueObject, IllegalMutation
+from ..traits import Int
 
-    def __init__(self, id):
-        self.id = id
+def test_immutability():
+    """
+    Test that ValueObject attributes do not get set after construction
+    """
+    class VO(ValueObject):
+        id = Int(immutable=True)
 
-vo = VO(3)
-with nt.assert_raises(IllegalMutation):
-    vo.id = 4
+        def __init__(self, id):
+            self.id = id
 
-with nt.assert_raises(Exception):
-    class NoInit(ValueObject):
-        pass
+    vo = VO(3)
+    with nt.assert_raises(IllegalMutation):
+        vo.id = 4
+    nt.assert_equals(vo.id, 3)
+
+def test_missing_init():
+    with nt.assert_raises(Exception):
+        class NoInit(ValueObject):
+            pass
