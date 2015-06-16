@@ -2,7 +2,7 @@ import unittest
 
 import nose.tools as nt
 
-from ..value_object import ValueObject, IllegalMutation
+from ..value_object import ValueObject, IllegalMutation, MissingInit
 from ..traits import Int
 
 def test_immutability():
@@ -21,6 +21,6 @@ def test_immutability():
     nt.assert_equals(vo.id, 3)
 
 def test_missing_init():
-    with nt.assert_raises(Exception):
+    with nt.assert_raises(MissingInit):
         class NoInit(ValueObject):
             pass

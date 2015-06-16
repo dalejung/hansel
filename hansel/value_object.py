@@ -5,6 +5,9 @@ from .traits import Trait
 class IllegalMutation(Exception):
     pass
 
+class MissingInit(Exception):
+    pass
+
 def init_wrapper(func):
     """ wraps __init__ with locking for immutability """
     def _init(self, *args, **kwargs):
@@ -23,7 +26,7 @@ class ValueObjectMeta(type):
         if bases:# only run on ValueObject subclass
             init = dct.get('__init__', None)
             if init is None:
-                raise Exception("ValueObject's must have __init__")
+                raise MissingInit("ValueObject's must have __init__")
 
             dct['__init__'] = init_wrapper(init)
         return super(ValueObjectMeta, cls).__new__(cls, name, bases, dct)
