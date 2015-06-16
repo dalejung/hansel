@@ -7,6 +7,9 @@ import datetime
 class TraitError(Exception):
     pass
 
+class KeyTypeError(TraitError):
+    pass
+
 def _get_name(trait, obj):
     classdict = obj.__class__.__dict__
     for k,v in iteritems(classdict):
@@ -83,17 +86,6 @@ class Datetime(Trait):
             return value
         self.error(obj, value)
 
-class Dict(Trait):
-    def __init__(self, key_type=None, value_type=None, **kwargs):
-        self.key_type = key_type
-        self.value_type = value_type
-        super().__init__(**kwargs)
-
-    def validate(self, obj, value):
-        if isinstance(value, dict):
-            return value
-        self.error(obj, value)
-
 class Type(Trait):
     def __init__(self, _class, **kwargs):
         self.check_class = _class
@@ -104,12 +96,19 @@ class Type(Trait):
             return value
         self.error(obj, value)
 
-def check_collection_type(lst, check_class):
-    for v in lst:
-        if not isinstance(v, check_class):
-            raise TraitError("Collection can only contain {type}")
+def grab_class_reference(obj, class_name):
+    """ Grab class ref from the module that object is defined in """
+    modname = obj.__class__.__module__
+    import sys
+    mod = sys.modules[modname]
+    check_class = getattr(mod, class_name, None)
+    return check_class
 
 class Collection(Trait):
+
+    # TODO replace list with a type checking list
+    container_class = list
+
     def __init__(self, _class, **kwargs):
         self._class = _class
         self.check_class = None
@@ -117,18 +116,53 @@ class Collection(Trait):
             self.check_class = _class
         super().__init__(**kwargs)
 
+    def _check_container_class(self, value):
+        if not isinstance(value, self.container_class):
+            raise TraitError("Must be a {container_class}".format(
+                container_class=str(self.container_class)
+            ))
+
+    def _check_collection_values(self, values):
+        check_class = self.check_class
+        for v in values:
+            if not isinstance(v, check_class):
+                raise TraitError("Collection can only contain {type}")
+
+    def values(self, obj):
+        return obj
+
     def validate(self, obj, value):
         if self.check_class is None:
-            modname = obj.__class__.__module__
-            import sys
-            mod = sys.modules[modname]
-            check_class = getattr(mod, self._class, None)
-            self.check_class = check_class
+            self.check_class = grab_class_reference(obj, self._class)
 
-        # TODO replace list with a type checking list
-        if not isinstance(value, list):
-            raise TraitError("Must be a list")
+        self._check_container_class(value)
+        self._check_collection_values(self.values(value))
 
-        check_collection_type(value, self.check_class)
+        return value
 
+class List(Collection):
+    container_class = list
+
+class Dict(Collection):
+    container_class = dict
+
+    def __init__(self, _class, **kwargs):
+        self.key_class = kwargs.pop('key_class', None)
+        super().__init__(_class, **kwargs)
+
+    def values(self, obj):
+        return obj.values()
+
+    def _validate_keys(self, value):
+        if self.key_class is None:
+            return
+        for k in value:
+            if not isinstance(k, self.key_class):
+                raise KeyTypeError("Keys must be {type} type".format(
+                    type=str(self.key_class)
+                ))
+
+    def validate(self, obj, value):
+        value = super().validate(obj, value)
+        self._validate_keys(value)
         return value
