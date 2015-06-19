@@ -24,7 +24,7 @@ class Trait:
 
     def __get__(self, obj, cls=None):
         name = self.get_name(obj)
-        return obj.__dict__[name]
+        return obj.__dict__.get(name, None)
 
     def __set__(self, obj, value):
         new_value = self._validate(obj, value)
