@@ -1,6 +1,6 @@
 from six import iteritems, with_metaclass
 
-from .traits import Trait
+from .traits import Trait, gather_traits
 
 class IllegalMutation(Exception):
     pass
@@ -18,12 +18,10 @@ def init_wrapper(func):
 
 class ValueObjectMeta(type):
     def __new__(cls, name, bases, dct):
-        traits = {}
-        for k, v in iteritems(dct):
-            if isinstance(v, Trait):
-                traits[k] = v
-
         if bases:# only run on ValueObject subclass
+            traits = gather_traits(dct, bases)
+            dct['_hansel_traits'] = traits
+
             init = dct.get('__init__', None)
             if init is None:
                 raise MissingInit("ValueObject's must have __init__")
@@ -35,6 +33,9 @@ class ValueObject(metaclass=ValueObjectMeta):
     _hansel_locked = False
 
     def __setattr__(self, name, value):
-        if self._hansel_locked:
+        # locking again should be fine. This happens with subclasses
+        # calling super().__init__
+        bypass = name == '_hansel_locked' and value == True
+        if self._hansel_locked and not bypass:
             raise IllegalMutation("ValueObjects are immutable.")
         super().__setattr__(name, value)

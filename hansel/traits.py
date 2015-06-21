@@ -11,11 +11,31 @@ class KeyTypeError(TraitError):
     pass
 
 def _get_name(trait, obj):
-    classdict = obj.__class__.__dict__
-    for k,v in iteritems(classdict):
-        if v is trait:
-            return k
+    for class_ in obj.__class__.__mro__:
+        classdict = class_.__dict__
+        for k,v in iteritems(classdict):
+            if v is trait:
+                return k
     raise Exception("Could not find name")
+
+def _gather_traits(dct, key='_hansel_traits'):
+    if key in dct:
+        return dct[key]
+
+    traits = {}
+    for k, v in iteritems(dct):
+        if isinstance(v, Trait):
+            traits[k] = v
+    return traits
+
+def gather_traits(dct, bases=[]):
+    class_dicts = [base.__dict__ for base in bases] + [dct]
+    trait_dicts = map(_gather_traits, class_dicts)
+
+    traits = {}
+    for tdict in trait_dicts:
+        traits.update(tdict)
+    return traits
 
 class Trait:
     def __init__(self, **kwargs):
