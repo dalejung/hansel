@@ -28,3 +28,13 @@ class WithScopeTest(unittest.TestCase):
         # dale should be removed
         nt.assert_not_in('dale', locals())
         nt.assert_is(bob, orig_bob)
+
+    def test_exit_handler(self):
+        out = {}
+        def handler(self, _out):
+            nt.assert_is(out, _out)
+            nt.assert_is(self.out, _out)
+            nt.assert_equal(_out['new_vars']['hallo'], 123)
+
+        with WithScope(out, exit_handler=handler):
+            hallo = 123

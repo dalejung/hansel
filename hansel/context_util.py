@@ -82,4 +82,4 @@ class WithScope(object):
         self.restore_scope()
 
         if self.exit_handler:
-            self.exit_handler()
+            self.exit_handler(self, out)
