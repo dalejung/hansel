@@ -37,6 +37,24 @@ def gather_traits(dct, bases=[]):
         traits.update(tdict)
     return traits
 
+def trait_repr(self):
+    """
+    """
+    traits = self._hansel_traits
+    class_ = self.__class__
+    class_name = class_.__name__
+
+    attrs = class_._hansel_traits
+    if hasattr(class_, '__repr_attrs__'):
+        attrs = getattr(class_, '__repr_attrs__')
+
+    bits = []
+    for k in attrs:
+        v = getattr(self, k)
+        bits.append("{k}={v}".format(k=k, v=v))
+    attr_string = ', '.join(bits)
+    return "{class_name}({attr_string})".format(**locals())
+
 class Trait:
     def __init__(self, **kwargs):
         self.value = None

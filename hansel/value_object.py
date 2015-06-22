@@ -1,6 +1,6 @@
 from six import iteritems, with_metaclass
 
-from .traits import Trait, gather_traits
+from .traits import Trait, gather_traits, trait_repr
 
 class IllegalMutation(Exception):
     pass
@@ -31,6 +31,8 @@ class ValueObjectMeta(type):
 
 class ValueObject(metaclass=ValueObjectMeta):
     _hansel_locked = False
+
+    __repr__ = trait_repr
 
     def __setattr__(self, name, value):
         # locking again should be fine. This happens with subclasses
