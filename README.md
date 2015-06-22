@@ -27,4 +27,4 @@ The basic model validation is straight forward. What I'm wanting now is to autom
 
 Also feasible to validate all variable names within a BC and not just parameters.
 
-Something I also want is to be able to reference `Question.id` and validate not just the type, but also whether a `UUID` for a `Question` entity. This would be more applicable within the domain model and not the boundary since at the application layer we'd just have to assume a valid `UUID` until get verify against some store. I'd rather not have to create a `UUID` subclass like `QuestionId(UUID)`.
+Something I also want is to be able to reference `Question.id` and validate not just the type, but also whether a `UUID` for a `Question` entity. This would be more applicable within the domain model and not the boundary since at the application layer we'd just have to assume a valid `UUID` until we verify against some store. I'd rather not have to create a `UUID` subclass like `QuestionId(UUID)`.
