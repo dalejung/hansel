@@ -1,3 +1,4 @@
+from collections import deque
 from six import iteritems, with_metaclass
 import inspect
 import uuid
@@ -180,6 +181,9 @@ class Collection(Trait):
 
 class List(Collection):
     container_class = list
+
+class Deque(Collection):
+    container_class = deque
 
 class Dict(Collection):
     container_class = dict
