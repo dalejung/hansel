@@ -12,12 +12,18 @@ class KeyTypeError(TraitError):
     pass
 
 def _get_name(trait, obj):
-    for class_ in obj.__class__.__mro__:
+    """
+    From a trait object, we want to find what it's attribute name is.
+    We search the class definitions.
+    """
+    # obj can be instance or class
+    cls = inspect.isclass(obj) and obj or obj.__class__
+    for class_ in cls.__mro__:
         classdict = class_.__dict__
         for k,v in iteritems(classdict):
             if v is trait:
                 return k
-    raise Exception("Could not find name")
+    raise Exception("Could not find name for trait {trait}".format(trait=str(trait)))
 
 def _gather_traits(dct, key='_hansel_traits'):
     if key in dct:
@@ -62,6 +68,8 @@ class Trait:
         self.name = None
 
     def __get__(self, obj, cls=None):
+        if obj is None:
+            obj = cls
         name = self.get_name(obj)
         return obj.__dict__.get(name, None)
 
