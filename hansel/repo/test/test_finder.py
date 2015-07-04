@@ -59,8 +59,9 @@ class TestRepoFinder(unittest.TestCase):
         obj = Obj(1, 123, 4)
         indexer.save(obj)
         nt.assert_is(indexer.find('product_id', 4)[1], obj)
+        nt.assert_in(1, indexer.find('product_id', 4))
         obj.product_id = 8
         indexer.save(obj)
         # update correctly retursn for new product_id
         nt.assert_is(indexer.find('product_id', 8)[1], obj)
-        nt.assert_not_in(1, indexer.find('product_id', 8))
+        nt.assert_not_in(1, indexer.find('product_id', 4))

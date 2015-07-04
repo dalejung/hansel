@@ -26,6 +26,23 @@ class SomeAggregate:
     def __repr__(self):
         return "SomeAggregate:"+str(repr(self.__dict__))
 
+DATA = {
+    1: {
+        'id': 1,
+        'user_id': 22,
+        'product_id': 111
+    },
+    2: {
+        'id': 2,
+        'user_id': 22,
+        'product_id': 222
+    },
+    4: {
+        'id': 4,
+        'user_id': 25,
+        'product_id': 222
+    },
+}
 
 class TestRepo(unittest.TestCase):
     def test_invalid_repo(self):
@@ -56,24 +73,7 @@ class TestRepo(unittest.TestCase):
     def setUp(self):
         print('setup')
 
-        data = {
-            1: {
-                'id': 1,
-                'user_id': 22,
-                'product_id': 111
-            },
-            2: {
-                'id': 2,
-                'user_id': 22,
-                'product_id': 222
-            },
-            4: {
-                'id': 4,
-                'user_id': 25,
-                'product_id': 222
-            },
-        }
-        self.data = data
+        self.data = DATA
 
     def check_obj_against_data(self, obj):
         data = self.data
@@ -116,13 +116,13 @@ class TestRepo(unittest.TestCase):
 
 
     def test_update_obj(self):
-
+        """ """
         data = self.data
-        tr = self.gen_repo(data)
+        tr = TestRepo.gen_repo(data)
 
         # change obj
         obj = tr.get(4)
-        tr.user_id = 99
+        obj.user_id = 99
         tr.save(obj)
 
         # obj with id == 4 changed user_id 25 -> 99
