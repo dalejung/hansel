@@ -50,3 +50,17 @@ class TestRepoFinder(unittest.TestCase):
         with nt.assert_raises(AttributeError):
             indexer.wrong_attr
 
+    def test_find_by_mutate(self):
+        """
+        Test that all queries are correct after updating objects with
+        changed indexed values
+        """
+        indexer = RepoFinder(None, {'user_id':{}, 'product_id': {}})
+        obj = Obj(1, 123, 4)
+        indexer.save(obj)
+        nt.assert_is(indexer.find('product_id', 4)[1], obj)
+        obj.product_id = 8
+        indexer.save(obj)
+        # update correctly retursn for new product_id
+        nt.assert_is(indexer.find('product_id', 8)[1], obj)
+        nt.assert_not_in(1, indexer.find('product_id', 8))
