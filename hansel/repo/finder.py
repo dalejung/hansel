@@ -15,16 +15,16 @@ class RepoFinder:
             current = indexer.setdefault(key, {})
             current[obj.id] = obj
 
-    def _find(self, cond, index_name):
+    def find(self, index_name, cond):
         indexer = self.indexers[index_name]
         return indexer.get(cond, {})
 
     # cache find partial
     def _finder(self, name):
         if name not in self.find_funcs:
-            self.find_funcs[name] = partial(self._find, index_name=name)
+            self.find_funcs[name] = partial(self.find, index_name=name)
 
-        return self.find_funcs[name] 
+        return self.find_funcs[name]
 
     def __getattr__(self, name):
         if not name.startswith('by_'):

@@ -1,3 +1,4 @@
+from functools import partial
 from hansel.traits import Dict
 
 from .finder import RepoFinder
@@ -15,6 +16,9 @@ class AutoRepoTemplate:
         self.data = {}
         finder = AutoRepoTemplate._generate_finder(self.aggregate, self.indexes)
         self.finder = finder
+
+    def get(self, id):
+        return self.data.get(id, None)
 
     def _generate_finder(aggregate, indexes):
         indexers = {}
@@ -37,15 +41,22 @@ def validate_indexes(aggregate, indexes):
             raise InvalidIndexError(index_name)
 
 def generate_find_funcs(dct, indexes):
-    raise NotImplementedError()
+    def _gen_func(index_name):
+        def _find(self, cond):
+            return self.finder.find(index_name, cond)
+        return _find
+
+    for index_name in indexes:
+        find_func = _gen_func(index_name)
+        dct['by_' + index_name] = find_func
 
 def process(cls, name, bases, dct):
     template = AutoRepoTemplate
     aggregate = dct['aggregate']
     dct['data'] = Dict(aggregate)
-    indexes = dct.get('indexes', [])
+    indexes = dct.setdefault('indexes', [])
 
-    for method in ['__init__', '_generate_finder', 'save']:
+    for method in ['__init__', '_generate_finder', 'save', 'get']:
         if method in dct:
             # raise warning if method already exists
             continue
@@ -53,18 +64,3 @@ def process(cls, name, bases, dct):
 
     validate_indexes(aggregate, indexes)
     generate_find_funcs(dct, indexes)
-
-if __name__ == '__main__':
-    from .repo import Repo
-    from hansel.traits import UUID
-    class SomeAggregate:
-        id = UUID()
-        user_id = UUID()
-        product_id = UUID()
-
-    class TestRepo(Repo):
-        aggregate = SomeAggregate
-        indexes = ['user_id', 'product_id']
-
-    tr = TestRepo()
-
