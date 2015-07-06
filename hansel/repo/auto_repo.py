@@ -40,14 +40,18 @@ def validate_indexes(aggregate, indexes):
         if not hasattr(aggregate, index_name):
             raise InvalidIndexError(index_name)
 
-def generate_find_funcs(dct, indexes):
-    def _gen_func(index_name):
+def generate_find_funcs(aggregate, indexes, dct):
+    def _gen_func(index_name, unique):
         def _find(self, cond):
-            return self.finder.find(index_name, cond)
+            res = self.finder.find(index_name, cond)
+            if unique:
+                res = next(iter(res.values()))
+            return res
         return _find
 
     for index_name in indexes:
-        find_func = _gen_func(index_name)
+        attr = getattr(aggregate, index_name)
+        find_func = _gen_func(index_name, unique=attr.unique)
         dct['by_' + index_name] = find_func
 
 def process(cls, name, bases, dct):
@@ -63,4 +67,4 @@ def process(cls, name, bases, dct):
         dct[method] = getattr(template, method)
 
     validate_indexes(aggregate, indexes)
-    generate_find_funcs(dct, indexes)
+    generate_find_funcs(aggregate, indexes, dct)

@@ -66,6 +66,7 @@ class Trait:
     def __init__(self, **kwargs):
         self.value = None
         self.name = None
+        self.unique = kwargs.pop('unique', False)
 
     def __get__(self, obj, cls=None):
         if obj is None:
