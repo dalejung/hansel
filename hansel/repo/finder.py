@@ -18,7 +18,6 @@ class RepoFinder:
         objects.pop(id)
 
     def save(self, obj):
-        print(obj)
         rev_item = self.rev_map.setdefault(obj.id, {})
 
         for index_name, indexer in self.indexers.items():
