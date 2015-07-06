@@ -48,3 +48,12 @@ class MetaMeta(type):
     def setitem_handler(key, value, scope):
         # raise NotImplementedError?
         pass
+
+def derived_methods(self):
+    pass
+    # TODO
+    # it's a common idiom for a class to return attribute dynamic.
+    # however these attributes are usually derived from some fixed
+    # data like a list of columns or indexes.
+    # so we should be able to more solidly define these items and also
+    # easily add support with __dir__
