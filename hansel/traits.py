@@ -1,4 +1,4 @@
-from collections import deque
+from collections import deque, OrderedDict
 from six import iteritems, with_metaclass
 import inspect
 import uuid
@@ -29,7 +29,7 @@ def _gather_traits(dct, key='_hansel_traits'):
     if key in dct:
         return dct[key]
 
-    traits = {}
+    traits = OrderedDict()
     for k, v in iteritems(dct):
         if isinstance(v, Trait):
             traits[k] = v
@@ -39,7 +39,7 @@ def gather_traits(dct, bases=[]):
     class_dicts = [base.__dict__ for base in bases] + [dct]
     trait_dicts = map(_gather_traits, class_dicts)
 
-    traits = {}
+    traits = OrderedDict()
     for tdict in trait_dicts:
         traits.update(tdict)
     return traits
