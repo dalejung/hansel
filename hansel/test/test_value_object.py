@@ -60,3 +60,6 @@ def test_subclass_values():
     child = Child(100, 200)
     nt.assert_equal(child.id, 100)
     nt.assert_equal(child.id2, 200)
+
+def test_init():
+    assert False, "Put in tests for default init"
