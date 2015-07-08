@@ -35,6 +35,9 @@ class AutoRepoTemplate:
         self.data[obj.id] = obj
         self.finder.save(obj)
 
+    def get_all(self):
+        return self.data
+
 def validate_indexes(aggregate, indexes):
     for index_name in indexes:
         if not hasattr(aggregate, index_name):
@@ -44,6 +47,9 @@ def generate_find_funcs(aggregate, indexes, dct):
     def _gen_func(index_name, unique):
         def _find(self, cond):
             res = self.finder.find(index_name, cond)
+            if not res:
+                return None
+
             if unique:
                 res = next(iter(res.values()))
             return res
@@ -60,7 +66,7 @@ def process(cls, name, bases, dct):
     dct['data'] = Dict(aggregate)
     indexes = dct.setdefault('indexes', [])
 
-    for method in ['__init__', '_generate_finder', 'save', 'get']:
+    for method in ['__init__', '_generate_finder', 'save', 'get', 'get_all']:
         if method in dct:
             # raise warning if method already exists
             continue
