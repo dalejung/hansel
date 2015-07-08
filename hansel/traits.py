@@ -98,7 +98,10 @@ class Trait:
         raise TraitError(msg)
 
 class Unicode(Trait):
-    pass
+    def validate(self, obj, value):
+        if isinstance(value, str):
+            return value
+        self.error(obj, value)
 
 class Int(Trait):
     def __init__(self, min=None, max=None, **kwargs):
