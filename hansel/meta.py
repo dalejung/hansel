@@ -49,6 +49,12 @@ class MetaMeta(type):
         # raise NotImplementedError?
         pass
 
+def mro(dct, bases, name):
+    class_dicts = [base.__dict__ for base in bases] + [dct]
+    for cdict in class_dicts:
+        if name in cdict:
+            return cdict[name]
+
 def derived_methods(self):
     pass
     # TODO
