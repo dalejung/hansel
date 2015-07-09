@@ -2,8 +2,8 @@ import unittest
 
 import nose.tools as nt
 
-from ..value_object import ValueObject, IllegalMutation
-from ..traits import Int
+from ..value_object import ValueObject, IllegalMutation, InvalidInitInvocation
+from ..traits import Int, UUID, Unicode
 
 def test_immutability():
     """
@@ -62,4 +62,21 @@ def test_subclass_values():
     nt.assert_equal(child.id2, 200)
 
 def test_init():
-    assert False, "Put in tests for default init"
+    """
+    Test that the default inits are very strict
+    """
+    class DefaultInit(ValueObject):
+        id = Int()
+        name = Unicode()
+
+    obj = DefaultInit(1, "Dale")
+    obj = DefaultInit(name="Dale", id=1)
+
+    with nt.assert_raises(InvalidInitInvocation):
+        obj = DefaultInit()
+
+    with nt.assert_raises(InvalidInitInvocation):
+        obj = DefaultInit(1, "DALE", extra=123)
+
+    with nt.assert_raises(InvalidInitInvocation):
+        obj = DefaultInit(1, "DALE", 123)
