@@ -90,14 +90,14 @@ class Trait:
         except TraitError as err:
             raise err # pass through trait errors we handle
         except Exception as err:
-            self.error(obj, value)
+            self.error(value, obj)
 
         return value
 
     def validate(self, obj, value):
         return value
 
-    def error(self, obj, value):
+    def error(self, value, obj=None):
         class_name = type(self).__name__
         value_name = type(value).__name__
         msg = "TraitError: Required {class_name}. Got {value_name}".format(**locals())
@@ -107,7 +107,7 @@ class Unicode(Trait):
     def validate(self, value):
         if isinstance(value, str):
             return value
-        raise
+        self.error(value)
 
 class Int(Trait):
     def __init__(self, min=None, max=None, **kwargs):
@@ -129,19 +129,25 @@ class Int(Trait):
         if isinstance(value, int) and self.check_min(value)\
             and self.check_max(value):
             return value
-        raise
+        self.error(value)
 
 class UUID(Trait):
     def validate(self, value):
         if isinstance(value, uuid.UUID):
             return value
-        raise
+        self.error(value)
+
+class UUID(Trait):
+    def validate(self, value):
+        if isinstance(value, uuid.UUID):
+            return value
+        self.error(value)
 
 class Datetime(Trait):
     def validate(self, value):
         if isinstance(value, datetime.datetime):
             return value
-        raise
+        self.error(value)
 
 class Type(Trait):
     def __init__(self, _class, **kwargs):
@@ -151,7 +157,7 @@ class Type(Trait):
     def validate(self, value):
         if isinstance(value, self.check_class):
             return value
-        raise
+        self.error(value)
 
 def grab_class_reference(obj, class_name):
     """ Grab class ref from the module that object is defined in """
