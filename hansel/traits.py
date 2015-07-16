@@ -85,7 +85,13 @@ class Trait:
         return self.name
 
     def _validate(self, obj, value):
-        value = self.validate(obj, value)
+        try:
+            value = self.validate(value)
+        except TraitError as err:
+            raise err # pass through trait errors we handle
+        except Exception as err:
+            self.error(obj, value)
+
         return value
 
     def validate(self, obj, value):
@@ -98,10 +104,10 @@ class Trait:
         raise TraitError(msg)
 
 class Unicode(Trait):
-    def validate(self, obj, value):
+    def validate(self, value):
         if isinstance(value, str):
             return value
-        self.error(obj, value)
+        raise
 
 class Int(Trait):
     def __init__(self, min=None, max=None, **kwargs):
@@ -119,33 +125,33 @@ class Int(Trait):
             return True
         return self.max >= value
 
-    def validate(self, obj, value):
+    def validate(self, value):
         if isinstance(value, int) and self.check_min(value)\
             and self.check_max(value):
             return value
-        self.error(obj, value)
+        raise
 
 class UUID(Trait):
-    def validate(self, obj, value):
+    def validate(self, value):
         if isinstance(value, uuid.UUID):
             return value
-        self.error(obj, value)
+        raise
 
 class Datetime(Trait):
-    def validate(self, obj, value):
+    def validate(self, value):
         if isinstance(value, datetime.datetime):
             return value
-        self.error(obj, value)
+        raise
 
 class Type(Trait):
     def __init__(self, _class, **kwargs):
         self.check_class = _class
         super().__init__(**kwargs)
 
-    def validate(self, obj, value):
+    def validate(self, value):
         if isinstance(value, self.check_class):
             return value
-        self.error(obj, value)
+        raise
 
 def grab_class_reference(obj, class_name):
     """ Grab class ref from the module that object is defined in """
@@ -182,13 +188,14 @@ class Collection(Trait):
     def values(self, obj):
         return obj
 
-    def validate(self, obj, value):
+    def _validate(self, obj, value):
         if self.check_class is None:
             self.check_class = grab_class_reference(obj, self._class)
+        super()._validate(obj, value)
 
+    def validate(self, value):
         self._check_container_class(value)
         self._check_collection_values(self.values(value))
-
         return value
 
 class List(Collection):
@@ -216,7 +223,7 @@ class Dict(Collection):
                     type=str(self.key_class)
                 ))
 
-    def validate(self, obj, value):
-        value = super().validate(obj, value)
+    def validate(self, value):
+        value = super().validate(value)
         self._validate_keys(value)
         return value
