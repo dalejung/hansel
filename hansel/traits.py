@@ -191,7 +191,7 @@ class Collection(Trait):
     def _validate(self, obj, value):
         if self.check_class is None:
             self.check_class = grab_class_reference(obj, self._class)
-        super()._validate(obj, value)
+        return super()._validate(obj, value)
 
     def validate(self, value):
         self._check_container_class(value)

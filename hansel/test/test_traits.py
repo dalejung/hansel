@@ -20,6 +20,7 @@ class Dict(unittest.TestCase):
 
         ex = ExampleObj()
         ex.dct = {'int1': 123, 3: 123}
+        nt.assert_count_equal(ex.dct, ['int1', 3])
 
         with nt.assert_raises(TraitError):
             ex.dct = {'int1': 123, 'float1': 1.1}
