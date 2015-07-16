@@ -31,16 +31,40 @@ class UL(object):
 class ULContext:
     _ul = Dict(Trait)
 
-    def __init__(self, _ul=None, **kwargs):
+    def __init__(self, _ul, **kwargs):
         self._ul = _ul
+        self._cache = {}
 
     def __setattr__(self, name, value):
-        if name in ['_ul']:
+        if name in ['_ul', '_cache']:
             return super().__setattr__(name, value)
-        raise Exception("The name does not exist in this UL")
+        raise Exception("Cannot set attribute outside of constructor")
 
     def __contains__(self, name):
         return name in self._ul
+
+    def __getattr__(self, name):
+        if name in self._ul:
+            return self._get(name)
+        raise AttributeError()
+
+    def _get(self, name):
+        checker = self._ul[name]
+        if name not in self._cache:
+            validator = ULValidator(name, checker)
+            self._cache[name] = validator
+        return self._cache[name]
+
+class ULValidator:
+    def __init__(self, name, checker):
+        self.name = name
+        self.checker = checker
+
+    def __or__(self, other):
+        checker = self.checker
+        if isinstance(checker, Trait):
+            return checker.validate(other)
+        return checker(other)
 
 def name_to_ulc(name):
     return quick_parse("_ulc.{name}", name=name).value
