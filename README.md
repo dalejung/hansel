@@ -28,3 +28,11 @@ The basic model validation is straight forward. What I'm wanting now is to autom
 Also feasible to validate all variable names within a BC and not just parameters.
 
 Something I also want is to be able to reference `Question.id` and validate not just the type, but also whether a `UUID` for a `Question` entity. This would be more applicable within the domain model and not the boundary since at the application layer we'd just have to assume a valid `UUID` until we verify against some store. I'd rather not have to create a `UUID` subclass like `QuestionId(UUID)`.
+
+## Ubiquitous Lanauge
+
+One of the things I want is to do type checking via UL which essentially is a mapping of names to types. This could be applied to functions, classes, and modules.
+
+With something like classes we could add a `strict` parameter that requires that all method parameters be typed via the `UL`. This would be useful for things like Service objects. Also, possible to hook into the import hooks and require that all instances of certain name be a certain type. It wouldn't need to be an actual `type` check though, we could use other invariants like `User's that are female`.
+
+I would prefer a system like above the optional type checking syntax built into Python 3.
