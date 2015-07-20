@@ -1,27 +1,21 @@
 import uuid
+import inspect
 import astor
 import ast
+import types
 from asttools import quick_parse, get_source, transform, coroutine
+
+import nose.tools as nt
 
 from ..ul import (
     ULContext,
     validation_pipe_transform,
     func_validation_transform,
-    UL
+    UL,
+    wrap_function,
+    ul_validate
 )
-from hansel.traits import UUID, Int, Type, List
-
-class __hansel_ul__:
-
-    ulc = {}
-
-    @classmethod
-    def context(cls, namespace, id=None):
-        # for now ignore namespace
-        return cls.ulc[id]
-
-class SomeType:
-    pass
+from hansel.traits import UUID, Int, Type, List, TraitError
 
 class Cart:
     line_items = List('LineItem')
@@ -38,25 +32,36 @@ class LineItem:
         self.product_id = product_id
         self.quantity = quantity
 
-def order_item(cart, product_id, quantity):
-    line_item = LineItem(cart.id, product_id, quantity)
-    return line_item
-
 ulc = ULContext({
     'product_id': UUID(),
     'line_item': Type(LineItem)
 })
 
-__hansel_ul__.ulc[id(ulc)] = ulc
 
+def test_params():
+    @ul_validate(ulc)
+    def order_item(cart, product_id, quantity):
+        line_item = LineItem(cart.id, product_id, quantity)
+        return line_item
 
-code = ast.parse(get_source(order_item))
-transform(code, validation_pipe_transform(ulc))
-transform(code, func_validation_transform(ulc))
-print(ast.dump(code.body[0].body[1]))
-print(astor.to_source(code))
+    with nt.assert_raises(TraitError):
+        order_item(Cart(1), 1, 2)
+    order_item(Cart(1), uuid.uuid4(), 2)
 
-code_obj = compile(code, '<>', 'exec')
-exec(code_obj)
+def test_assignments():
+    # try using line_item without it being a LineItem class
+    @ul_validate(ulc)
+    def order_item(cart, product_id, quantity):
+        line_item = [cart.id, product_id, quantity]
+        return line_item
 
+    with nt.assert_raises(TraitError):
+        order_item(Cart(1), uuid.uuid4(), 2)
 
+    @ul_validate(ulc)
+    def order_item(cart, product_id, quantity):
+        lst = [cart.id, product_id, quantity]
+        return lst
+
+    # fine if we change var name
+    order_item(Cart(1), uuid.uuid4(), 2)

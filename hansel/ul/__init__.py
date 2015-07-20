@@ -7,6 +7,7 @@ Originally the idea was to make this a Service specific feature, but in reality
 a UL instance should be able to wrap arbitrary class / methods
 """
 import ast
+import inspect
 import types
 from asttools import (
     is_load_name,
@@ -18,7 +19,7 @@ from asttools import (
 
 from hansel.traits import Dict, Trait
 
-from .context_util import WithScope
+from ..context_util import WithScope
 
 class UL(object):
     def __init__(self, **kwargs):
@@ -125,8 +126,48 @@ def func_validation_transform(ul):
             ulc_check = quick_parse("_ulc.{name} | {name}", name=arg)
             node.body.insert(0, ulc_check)
 
-        ulc_load = quick_parse("_ulc = __hansel_ul__.context({func_name}, id={ulc_id})",
+        ulc_load = quick_parse("_ulc = __hansel_ul__.context('{func_name}', id={ulc_id})",
                                func_name=node.name,
                                ulc_id=id(ul))
         node.body.insert(0, ulc_load)
         node, meta = yield node
+
+def ulc_transform(code, ulc):
+    # applies the ulc transformations
+    transform(code, validation_pipe_transform(ulc))
+    transform(code, func_validation_transform(ulc))
+
+def wrap_function(func, ulc):
+    """
+    Grabs a function, applies UL validation, returns new function
+    """
+    func_name = func.__name__
+    from hansel.ul import __hansel_ul__
+    __hansel_ul__.ulc[id(ulc)] = ulc
+
+    code = ast.parse(get_source(func))
+    ulc_transform(code, ulc)
+
+    # exec and redfine func in its original namespace
+    code_obj = compile(code, inspect.getfile(func), 'exec')
+    ns = {}
+    func.__globals__['__hansel_ul__'] = __hansel_ul__
+    exec(code_obj, func.__globals__, ns)
+    new_func = ns[func_name]
+    return new_func
+
+def ul_validate(ulc):
+    def _wrapper(func):
+        return wrap_function(func, ulc)
+    return _wrapper
+
+class ULContextManager:
+
+    def __init__(self):
+        self.ulc = {}
+
+    def context(self, namespace, id=None):
+        # for now ignore namespace
+        return self.ulc[id]
+
+__hansel_ul__ = ULContextManager()
