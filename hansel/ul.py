@@ -55,6 +55,9 @@ class ULContext:
             self._cache[name] = validator
         return self._cache[name]
 
+    def __dir__(self):
+        return self._ul.keys()
+
 class ULValidator:
     def __init__(self, name, checker):
         self.name = name
@@ -66,33 +69,64 @@ class ULValidator:
             return checker.validate(other)
         return checker(other)
 
-def name_to_ulc(name):
-    return quick_parse("_ulc.{name}", name=name).value
-
+def add_validate_pipe(value, name):
+    binop = quick_parse("_ulc.{name} | True", name=name).value
+    binop.right = value
+    ast.copy_location(binop, value)
+    return binop
 
 @coroutine.wrap
-def ul_name_transform(ul):
+def validation_pipe_transform(ul):
     """
     Transform names that contain
-    bob = frank -> _ulc.bob = frank
+    bob = frank -> bob = _ulc.bob | frank
+
+    If is assumed that the _ulc.bob will validate `frank`.
     """
     used = set()
     node, meta = yield
 
-    def _need_rename(node):
-        if node.id in used: # already used before
-            return True
-
-        if not is_load_name(node) and node.id in ul:
-            return True
-
-        return False
-
     while True:
 
-        if not isinstance(node, ast.Name) or not _need_rename(node):
+        if not isinstance(node, ast.Assign):
             node, meta = yield node
             continue
 
-        used.add(node.id)
-        node, meta = yield ast.copy_location(name_to_ulc(node.id), node)
+        new_value = node.value
+        for i, target in enumerate(node.targets):
+            if isinstance(target, ast.Name) and target.id in ul:
+                new_value = add_validate_pipe(new_value, target.id)
+        node.value = new_value
+        node, meta = yield node
+
+
+@coroutine.wrap
+def func_validation_transform(ul):
+    """
+    Transform function definitions from
+    def bob(ul_term, random_var):
+        return True
+
+    def bob(ul_term, random_var):
+        _ulc.ul_term | ul_term
+        return True
+    """
+    used = set()
+    node, meta = yield
+
+    while True:
+
+        if not isinstance(node, ast.FunctionDef):
+            node, meta = yield node
+            continue
+
+        args = list(map(lambda x:x.arg, node.args.args))
+        for arg in filter(lambda x: x in ul, args):
+            ulc_check = quick_parse("_ulc.{name} | {name}", name=arg)
+            node.body.insert(0, ulc_check)
+
+        ulc_load = quick_parse("_ulc = __hansel_ul__.context({func_name}, id={ulc_id})",
+                               func_name=node.name,
+                               ulc_id=id(ul))
+        node.body.insert(0, ulc_load)
+        node, meta = yield node
