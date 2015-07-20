@@ -1,8 +1,5 @@
 import inspect
-import ctypes
-
-def reload_locals(frame):
-    ctypes.pythonapi.PyFrame_LocalsToFast(ctypes.py_object(frame), ctypes.c_int(1))
+from asttools import reload_locals
 
 class WithScope(object):
     """
