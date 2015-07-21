@@ -7,6 +7,7 @@ Originally the idea was to make this a Service specific feature, but in reality
 a UL instance should be able to wrap arbitrary class / methods
 """
 import ast
+from functools import partial
 import inspect
 import types
 from asttools import (
@@ -14,7 +15,8 @@ from asttools import (
     quick_parse,
     get_source,
     transform,
-    coroutine
+    coroutine,
+    create_function
 )
 
 from hansel.traits import Dict, Trait
@@ -141,22 +143,20 @@ def wrap_function(func, ulc):
     """
     Grabs a function, applies UL validation, returns new function
     """
-    func_name = func.__name__
     from hansel.ul import __hansel_ul__
     __hansel_ul__.ulc[id(ulc)] = ulc
+    func.__globals__['__hansel_ul__'] = __hansel_ul__
 
     code = ast.parse(get_source(func))
     ulc_transform(code, ulc)
 
-    # exec and redfine func in its original namespace
-    code_obj = compile(code, inspect.getfile(func), 'exec')
-    ns = {}
-    func.__globals__['__hansel_ul__'] = __hansel_ul__
-    exec(code_obj, func.__globals__, ns)
-    new_func = ns[func_name]
+    new_func = create_function(code, func)
     return new_func
 
 def ul_validate(ulc):
+    """
+    decorator for ulc validation
+    """
     def _wrapper(func):
         return wrap_function(func, ulc)
     return _wrapper

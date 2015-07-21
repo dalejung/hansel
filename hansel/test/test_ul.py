@@ -63,5 +63,29 @@ def test_assignments():
         lst = [cart.id, product_id, quantity]
         return lst
 
-    # fine if we change var name
+    # fine if we change var name. not in UL so not verified
     order_item(Cart(1), uuid.uuid4(), 2)
+
+def test_strict():
+    """
+    In strict function mode, every parameter must have a corresponding UL
+    check.
+    """
+    raise NotImplementedError()
+
+def test_module_check():
+    """
+    Test applying UL to an entire module. By default it will only check names
+    within the UL. strict mode will require all callable params have a UL check.
+    Also, we can mark functions to be checked against the module ulc.
+
+    So kind of a cascading check for the current ulc.
+    """
+    raise NotImplementedError()
+
+def test_class_check():
+    """
+    Class based UL will check all of its methods for UL types. Essentially
+    we place all methods under the UL.
+    """
+    raise NotImplementedError()
