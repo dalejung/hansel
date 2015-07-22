@@ -131,6 +131,12 @@ class Int(Trait):
             return value
         self.error(value)
 
+class Bool(Trait):
+    def validate(self, value):
+        if isinstance(value, bool):
+            return value
+        self.error(value)
+
 class UUID(Trait):
     def validate(self, value):
         if isinstance(value, uuid.UUID):
