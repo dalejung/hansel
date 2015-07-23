@@ -47,7 +47,7 @@ class Entity(metaclass=EntityMeta):
             raise UnexpectedMutationError()
         return super().__setattr__(name, value)
 
-matcher = Matcher('with ~apply: _any_')
+matcher = Matcher('with mutate.apply: _any_')
 
 APPLY_TEMPLATE = """
 def {func_name}(self, event):
@@ -76,6 +76,9 @@ def split_apply(code):
     return code, apply_code
 
 class MutateMagic:
+    def __init__(self):
+        self.apply = ApplyMagic()
+
     def __call__(self, func):
         if getattr(func, '__hansel_mutated__', False):
             raise Exception('Already wrapped')
@@ -102,9 +105,6 @@ class MutateMagic:
         return _wrap
 
 class ApplyMagic:
-    def __invert__(self):
-        return self
-
     def __enter__(self, *args, **kwargs):
         pass
 
@@ -112,7 +112,6 @@ class ApplyMagic:
         pass
 
 mutate = MutateMagic()
-apply = MutateMagic()
 
 class AutoDomainEvent:
     __slots__ = ('__event_type', '__dict__')

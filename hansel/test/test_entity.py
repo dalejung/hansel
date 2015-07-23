@@ -1,4 +1,4 @@
-from ..entity import Entity, mutate, apply
+from ..entity import Entity, mutate
 
 class Test(Entity):
     def __init__(self, hello):
@@ -8,7 +8,7 @@ class Test(Entity):
     def change_hello(self, hello, frank=1):
         if hello > 0:
             raise Exception('whatever')
-        with ~apply:
+        with mutate.apply:
             self.hello = hello
         print('hi', __evt)
         return 1
