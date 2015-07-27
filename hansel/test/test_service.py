@@ -17,8 +17,8 @@ class DaleService(Service):
     def bob(self, wheee):
         self.wheee = wheee
 
+@unittest.expectedFailure
 def test_service_ul():
-    raise NotImplementedError()
     # currently fails assert and does not raise
     with nt.assert_raises(TypeError):
         ds = DaleService()

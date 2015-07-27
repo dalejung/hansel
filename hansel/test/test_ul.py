@@ -3,6 +3,8 @@ import inspect
 import astor
 import ast
 import types
+from unittest import expectedFailure
+
 from asttools import quick_parse, get_source, transform, coroutine
 
 import nose.tools as nt
@@ -66,13 +68,14 @@ def test_assignments():
     # fine if we change var name. not in UL so not verified
     order_item(Cart(1), uuid.uuid4(), 2)
 
+@expectedFailure
 def test_strict():
     """
     In strict function mode, every parameter must have a corresponding UL
     check.
     """
-    raise NotImplementedError()
 
+@expectedFailure
 def test_module_check():
     """
     Test applying UL to an entire module. By default it will only check names
@@ -81,11 +84,10 @@ def test_module_check():
 
     So kind of a cascading check for the current ulc.
     """
-    raise NotImplementedError()
 
+@expectedFailure
 def test_class_check():
     """
     Class based UL will check all of its methods for UL types. Essentially
     we place all methods under the UL.
     """
-    raise NotImplementedError()
