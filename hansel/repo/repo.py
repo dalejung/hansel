@@ -15,7 +15,7 @@ from enum import Enum
 from functools import partial
 
 from hansel.meta import MetaMeta
-from hansel.traits import Dict
+from earthdragon.typelet import Dict
 
 from .finder import RepoFinder
 from .auto_repo import process

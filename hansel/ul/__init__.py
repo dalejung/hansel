@@ -19,7 +19,7 @@ from asttools import (
     create_function
 )
 
-from hansel.traits import Dict, Trait
+from earthdragon.typelet import Dict, Typelet
 
 from ..context_util import WithScope
 
@@ -32,7 +32,7 @@ class UL(object):
         return func
 
 class ULContext:
-    _ul = Dict(Trait)
+    _ul = Dict(Typelet)
 
     def __init__(self, _ul, **kwargs):
         self._ul = _ul
@@ -68,7 +68,7 @@ class ULValidator:
 
     def __or__(self, other):
         checker = self.checker
-        if isinstance(checker, Trait):
+        if isinstance(checker, Typelet):
             return checker.validate(other)
         return checker(other)
 

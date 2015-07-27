@@ -15,7 +15,7 @@ from ..ul import (
     wrap_function,
     ul_validate
 )
-from hansel.traits import UUID, Int, Type, List, TraitError
+from earthdragon.typelet import UUID, Int, Type, List, TypeletError
 
 class Cart:
     line_items = List('LineItem')
@@ -44,7 +44,7 @@ def test_params():
         line_item = LineItem(cart.id, product_id, quantity)
         return line_item
 
-    with nt.assert_raises(TraitError):
+    with nt.assert_raises(TypeletError):
         order_item(Cart(1), 1, 2)
     order_item(Cart(1), uuid.uuid4(), 2)
 
@@ -55,7 +55,7 @@ def test_assignments():
         line_item = [cart.id, product_id, quantity]
         return line_item
 
-    with nt.assert_raises(TraitError):
+    with nt.assert_raises(TypeletError):
         order_item(Cart(1), uuid.uuid4(), 2)
 
     @ul_validate(ulc)

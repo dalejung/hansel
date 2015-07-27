@@ -1,5 +1,5 @@
 from functools import partial
-from hansel.traits import Dict
+from earthdragon.typelet import Dict
 
 from .finder import RepoFinder
 

@@ -1,22 +1,26 @@
 import types
-from .traits import Trait, gather_traits, trait_repr
-from .traits import Int, UUID
+from earthdragon.typelet import (
+    Typelet,
+    gather_typelets,
+    typelet_repr,
+    Int, UUID
+)
 from .context_util import WithScope
 
-def wrap_method_func(func, traits):
-    # TODO match on trait key names and args and do type checking
+def wrap_method_func(func, typelets):
+    # TODO match on typelet key names and args and do type checking
     return func
 
 class ServiceMeta(type):
     def __new__(cls, name, bases, dct):
         if bases:# only run on Entity subclass
-            traits = gather_traits(dct, bases)
-            dct['_hansel_traits'] = traits
+            typelets = gather_typelets(dct, bases)
+            dct['_hansel_typelets'] = typelets
 
-            ul_traits = dct.get('_hansel_ul')
+            ul_typelets = dct.get('_hansel_ul')
             for k, v in dct.items():
                 if isinstance(v, types.FunctionType):
-                    dct[k] = wrap_method_func(v, ul_traits)
+                    dct[k] = wrap_method_func(v, ul_typelets)
 
         return super(ServiceMeta, cls).__new__(cls, name, bases, dct)
 

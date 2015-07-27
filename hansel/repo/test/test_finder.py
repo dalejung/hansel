@@ -2,7 +2,7 @@ import unittest
 import nose.tools as nt
 from ..repo import Repo
 from ..finder import RepoFinder, MissingIndexError
-from hansel.traits import UUID, Dict
+from earthdragon.typelet import UUID, Dict
 
 def test_repo_persist():
     # assert False, "TODO: Keep track of Repo instances and persist their data via pickle"

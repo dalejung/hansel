@@ -3,7 +3,7 @@ import unittest
 import nose.tools as nt
 
 from ..value_object import ValueObject, IllegalMutation, InvalidInitInvocation
-from ..traits import Int, UUID, Unicode
+from earthdragon.typelet import Int, UUID, Unicode
 
 def test_immutability():
     """
@@ -42,14 +42,14 @@ class GrandChild(Child):
 
 
 
-def test_hansle_traits():
+def test_hansle_typelets():
     """
-    hansel traits should be a complete list. this means
-    it will contain superclass traits as well.
+    hansel typelets should be a complete list. this means
+    it will contain superclass typelets as well.
     """
-    nt.assert_count_equal(Parent._hansel_traits, ['id'])
-    nt.assert_count_equal(Child._hansel_traits, ['id', 'id2'])
-    nt.assert_count_equal(GrandChild._hansel_traits, ['id', 'id2', 'id3'])
+    nt.assert_count_equal(Parent._earthdragon_typelets, ['id'])
+    nt.assert_count_equal(Child._earthdragon_typelets, ['id', 'id2'])
+    nt.assert_count_equal(GrandChild._earthdragon_typelets, ['id', 'id2', 'id3'])
 
 def test_subclass_values():
     gc = GrandChild(100, 200, 300)

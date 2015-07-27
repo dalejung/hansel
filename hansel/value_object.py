@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from six import iteritems, with_metaclass
 
-from .traits import Trait, gather_traits, trait_repr
+from earthdragon.typelet import Typelet, gather_typelets, typelet_repr
 from .meta import mro
 
 class IllegalMutation(Exception):
@@ -26,8 +26,8 @@ class ValueObjectMeta(type):
 
     def __new__(cls, name, bases, dct):
         if bases:# only run on ValueObject subclass
-            traits = gather_traits(dct, bases)
-            dct['_hansel_traits'] = traits
+            typelets = gather_typelets(dct, bases)
+            dct['_earthdragon_typelets'] = typelets
 
             init = mro(dct, bases, '__init__')
 
@@ -43,7 +43,7 @@ def fill(obj, filled, name, value):
 class ValueObject(metaclass=ValueObjectMeta):
     _hansel_locked = False
 
-    __repr__ = trait_repr
+    __repr__ = typelet_repr
 
     def __setattr__(self, name, value):
         # locking again should be fine. This happens with subclasses
@@ -55,22 +55,22 @@ class ValueObject(metaclass=ValueObjectMeta):
 
     def __init__(self, *args, **kwargs):
         """
-        Default __init__. Requires that hansel_traits be specified.
+        Default __init__. Requires that earthdragon_typelets be specified.
         """
         filled = {}
-        _traits = self._hansel_traits
+        _typelets = self._earthdragon_typelets
 
-        if len(args) > len(_traits):
+        if len(args) > len(_typelets):
             raise InvalidInitInvocation("Passed too many positional values")
 
-        if not set(kwargs).issubset(_traits):
-            raise InvalidInitInvocation("Pass non trait keyword arg")
+        if not set(kwargs).issubset(_typelets):
+            raise InvalidInitInvocation("Pass non typelet keyword arg")
 
-        for arg, name in zip(args, _traits):
+        for arg, name in zip(args, _typelets):
             fill(self, filled, name, arg)
 
         for k, v in kwargs.items():
             fill(self, filled, k, v)
 
-        if set(filled) != set(_traits):
+        if set(filled) != set(_typelets):
             raise InvalidInitInvocation("Need to fill all args")

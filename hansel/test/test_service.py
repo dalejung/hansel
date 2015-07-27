@@ -3,7 +3,7 @@ import unittest
 import nose.tools as nt
 
 from ..service import Service
-from ..traits import Int, UUID
+from earthdragon.typelet import Int, UUID
 
 
 class ServiceTest(unittest.TestCase):
@@ -17,7 +17,9 @@ class DaleService(Service):
     def bob(self, wheee):
         self.wheee = wheee
 
-# currently fails assert and does not raise
-with nt.assert_raises(TypeError):
-    ds = DaleService()
-    ds.bob('string')
+def test_service_ul():
+    raise NotImplementedError()
+    # currently fails assert and does not raise
+    with nt.assert_raises(TypeError):
+        ds = DaleService()
+        ds.bob('string')

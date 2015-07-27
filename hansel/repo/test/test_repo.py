@@ -3,7 +3,7 @@ import nose.tools as nt
 from ..repo import Repo, InvalidRepoError
 from ..finder import RepoFinder, MissingIndexError
 from ..auto_repo import InvalidIndexError
-from hansel.traits import Dict, Int
+from earthdragon.typelet import Dict, Int
 
 def test_repo_persist():
     # assert False, "TODO: Keep track of Repo instances and persist their data via pickle"
@@ -55,14 +55,14 @@ class TestRepo(unittest.TestCase):
                 pass
 
     def test_auto_repo_data(self):
-        """ testing the creation of the data trait from aggregate """
+        """ testing the creation of the data typelet from aggregate """
         class TestRepo(Repo):
             aggregate = SomeAggregate
 
         tr = TestRepo()
-        data_trait = TestRepo.__dict__['data']
-        nt.assert_is_instance(data_trait, Dict)
-        nt.assert_is(data_trait.check_class, SomeAggregate)
+        data_typelet = TestRepo.__dict__['data']
+        nt.assert_is_instance(data_typelet, Dict)
+        nt.assert_is(data_typelet.check_class, SomeAggregate)
 
     def test_auto_indexes(self):
         with nt.assert_raises(InvalidIndexError):

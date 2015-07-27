@@ -12,7 +12,7 @@ from asttools.function import (
     func_args_realizer
 )
 
-from .traits import Trait, gather_traits, trait_repr
+from earthdragon.typelet import Typelet, gather_typelets, typelet_repr
 
 class UnexpectedMutationError(Exception):
     pass
@@ -39,7 +39,7 @@ def entity_init(init):
 
 
 class Entity(metaclass=EntityMeta):
-    __repr__ = trait_repr
+    __repr__ = typelet_repr
 
     def publish(self, event):
         self._events.append(event)

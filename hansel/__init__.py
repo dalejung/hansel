@@ -1,4 +1,4 @@
-from .traits import *
+from earthdragon.typelet import *
 from .value_object import ValueObject
 from .entity import Entity, mutate
 from .service import Service
