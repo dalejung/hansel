@@ -48,7 +48,7 @@ def generate_find_funcs(aggregate, indexes, dct):
         def _find(self, cond):
             res = self.finder.find(index_name, cond)
             if not res:
-                return None
+                return res
 
             if unique:
                 res = next(iter(res.values()))

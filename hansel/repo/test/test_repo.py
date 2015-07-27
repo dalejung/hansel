@@ -115,6 +115,7 @@ class TestRepo(unittest.TestCase):
         nt.assert_count_equal(user_res, [4])
 
 
+    @unittest.expectedFailure
     def test_update_obj(self):
         """ """
         data = self.data
