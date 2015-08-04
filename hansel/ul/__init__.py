@@ -21,7 +21,7 @@ from asttools import (
 
 from earthdragon.typelet import Dict, Typelet
 
-from ..context_util import WithScope
+from earthdragon.context import WithScope
 
 class UL(object):
     def __init__(self, **kwargs):

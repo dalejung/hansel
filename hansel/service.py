@@ -5,7 +5,7 @@ from earthdragon.typelet import (
     typelet_repr,
     Int, UUID
 )
-from .context_util import WithScope
+from earthdragon.context import WithScope
 
 def wrap_method_func(func, typelets):
     # TODO match on typelet key names and args and do type checking
