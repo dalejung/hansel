@@ -14,7 +14,7 @@ import inspect
 from enum import Enum
 from functools import partial
 
-from hansel.meta import MetaMeta
+from earthdragon.meta import MetaMeta
 from earthdragon.typelet import Dict
 
 from .finder import RepoFinder
