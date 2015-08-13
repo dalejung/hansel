@@ -9,7 +9,7 @@ setup(
     packages=['hansel'],
     install_requires = [
         'astor',
-        'asttools'
+        'asttools',
         'earthdragon',
         'six',
     ]
