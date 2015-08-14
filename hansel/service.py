@@ -6,17 +6,18 @@ from earthdragon.typelet import (
     Int, UUID
 )
 from earthdragon.context import WithScope
+from earthdragon.navel import (
+    Navel,
+    NavelMeta,
+)
 
 def wrap_method_func(func, typelets):
     # TODO match on typelet key names and args and do type checking
     return func
 
-class ServiceMeta(type):
+class ServiceMeta(NavelMeta):
     def __new__(cls, name, bases, dct):
         if bases:# only run on Entity subclass
-            typelets = gather_typelets(dct, bases)
-            dct['_hansel_typelets'] = typelets
-
             ul_typelets = dct.get('_hansel_ul')
             for k, v in dct.items():
                 if isinstance(v, types.FunctionType):
@@ -24,7 +25,7 @@ class ServiceMeta(type):
 
         return super(ServiceMeta, cls).__new__(cls, name, bases, dct)
 
-class Service(metaclass=ServiceMeta):
+class Service(Navel, metaclass=ServiceMeta):
     @classmethod
     def UL(cls):
         def handler(self, out):
