@@ -14,7 +14,8 @@ from asttools.function import (
     get_invoked_args,
     get_source,
     create_function,
-    func_args_realizer
+    func_args_realizer,
+    func_def_args
 )
 from earthdragon.feature import Attr
 from earthdragon.navel import mutate
@@ -67,12 +68,15 @@ class EventSourcer:
 
     def publish(self, event):
         self._events.append(event)
+        # for now, immediately apply
+        self.apply(event)
 
     @mutate
     def apply(self, event):
         event_type = event.__event_type__
         apply_func = getattr(self, event_type).decorator.func.apply_func
-        return apply_func(self, event)
+        if apply_func:
+            return apply_func(self, event)
 
     @classmethod
     def load_from_history(cls, events):
@@ -80,7 +84,6 @@ class EventSourcer:
         for event in events:
             obj.apply(event)
         return obj
-
 
 def _template_lines(template, **kwargs):
     if not template:
@@ -114,6 +117,7 @@ def _split_apply(code):
     func_def = code.body[0]
     assert isinstance(func_def, ast.FunctionDef), "input should be module with single function def"
     apply_code = None
+    args = func_def_args(func_def)
     # find the with apply: block if it exists
     for item in graph_walk(code):
         node = item['node']
@@ -127,7 +131,7 @@ def _split_apply(code):
             replace_with_block(parent, field_name, field_index)
 
             # extract the apply code that mutates state
-            apply_code = generate_apply_code(node, func_def.name)
+            apply_code = generate_apply_code(node, func_def)
             break
     else:
         event_lines = _template_lines(EVENT_TEMPLATE)
@@ -136,7 +140,7 @@ def _split_apply(code):
     # add the event prep lines. this is done backwards
     # because replace_with_block needs the correct field_index of
     # the with mutate.apply block
-    items_list = func_args_realizer(func_def)
+    items_list = func_args_realizer(args)
     pre_lines = _template_lines(PRE_TEMPLATE,
                             func_name=func_def.name,
                             items_list=items_list)
@@ -145,7 +149,7 @@ def _split_apply(code):
     return code, apply_code
 
 @coroutine.wrap
-def expose_event():
+def expose_event(args):
     """
     change free vars to instead grab from event object
     `bob = frank` -> `bob = event.frank`
@@ -155,14 +159,14 @@ def expose_event():
     while True:
 
         if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load) \
-           and node.id != 'self':
+           and node.id != 'self' and node.id in args:
             new_node = quick_parse("event.{name}", name=node.id).value
             node, meta = yield new_node
             continue
         node, meta = yield node
         continue
 
-def generate_apply_code(node, func_name):
+def generate_apply_code(node, func_def):
     """
     Takes the `with mutate.apply:` and turns it into a function that will
     accept a domain event and mutate the state.
@@ -174,8 +178,10 @@ def generate_apply_code(node, func_name):
     This is likely a limiting approach, so it's possible the logic will get
     more complicated to afford more flexibility.
     """
+    func_name = func_def.name
+    args = func_def_args(func_def)
     apply_code = quick_parse(APPLY_TEMPLATE, func_name=func_name)
-    new_body = transform(node, expose_event())
+    new_body = transform(node, expose_event(args))
     apply_code.body = apply_code.body + new_body.body
     return apply_code
 
