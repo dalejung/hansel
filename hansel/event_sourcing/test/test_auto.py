@@ -20,6 +20,3 @@ with mutate.apply:
     self.bob = event.bob
 """
 node = quick_parse(source)
-
-
-apply_code = generate_apply_code(node, 'some_func')
