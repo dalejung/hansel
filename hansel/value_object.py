@@ -3,7 +3,7 @@ from collections import OrderedDict
 from six import iteritems, with_metaclass
 
 from earthdragon.typelet import Typelet, gather_typelets, typelet_repr
-from .meta import mro
+from earthdragon.meta import mro
 
 class IllegalMutation(Exception):
     pass
