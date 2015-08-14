@@ -74,6 +74,14 @@ class EventSourcer:
         apply_func = getattr(self, event_type).decorator.func.apply_func
         return apply_func(self, event)
 
+    @classmethod
+    def load_from_history(cls, events):
+        obj = cls.__new__(cls)
+        for event in events:
+            obj.apply(event)
+        return obj
+
+
 def _template_lines(template, **kwargs):
     if not template:
         return []

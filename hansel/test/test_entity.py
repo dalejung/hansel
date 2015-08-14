@@ -1,6 +1,7 @@
 import nose.tools as nt
 
 from ..entity import Entity, mutate, UnexpectedMutationError
+from earthdragon.typelet import Int
 
 def test_simple_event_source():
     class PositiveNumber(Entity):
@@ -26,6 +27,8 @@ def test_simple_event_source():
 
 
 class SplitApply(Entity):
+    var = Int()
+
     def __init__(self, var):
         with mutate.apply:
             self.var = var
@@ -45,3 +48,6 @@ for ev in obj._events[1:]:
     obj.apply(ev)
 
 nt.assert_equal(obj.var, 10)
+
+new_obj = SplitApply.load_from_history(obj._events)
+nt.assert_equal(new_obj.var, obj.var)
