@@ -115,7 +115,6 @@ class TestRepo(unittest.TestCase):
         nt.assert_count_equal(user_res, [4])
 
 
-    @unittest.expectedFailure
     def test_update_obj(self):
         """ """
         data = self.data
@@ -129,5 +128,6 @@ class TestRepo(unittest.TestCase):
         # obj with id == 4 changed user_id 25 -> 99
         # obj should not be returned for user_id
         # 07-03-15 currently broken
+        # 2015/08/13 23:42 fixed by 438c52eb2df6b7c40d8d40213218a3058c86afd0
         old_user_objs = tr.by_user_id(25)
         nt.assert_not_in(4, old_user_objs)

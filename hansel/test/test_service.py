@@ -17,9 +17,11 @@ class DaleService(Service):
     def bob(self, wheee):
         self.wheee = wheee
 
-@unittest.expectedFailure
-def test_service_ul():
-    # currently fails assert and does not raise
-    with nt.assert_raises(TypeError):
-        ds = DaleService()
-        ds.bob('string')
+class ServiceTestCase(unittest.TestCase):
+
+    @unittest.expectedFailure
+    def test_service_ul():
+        # currently fails assert and does not raise
+        with nt.assert_raises(TypeError):
+            ds = DaleService()
+            ds.bob('string')
