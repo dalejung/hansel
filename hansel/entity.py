@@ -22,9 +22,6 @@ from earthdragon.typelet import Typelet, gather_typelets, typelet_repr
 
 class EntityMeta(NavelMeta):
     def __new__(cls, name, bases, dct):
-        if bases:
-            typelets = gather_typelets(dct, bases)
-            dct['_hansel_typelets'] = typelets
         return super(EntityMeta, cls).__new__(cls, name, bases, dct)
 
 
