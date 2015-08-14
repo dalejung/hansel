@@ -2,49 +2,46 @@ import nose.tools as nt
 
 from ..entity import Entity, mutate, UnexpectedMutationError
 
-class Test(Entity):
-    def __init__(self, hello):
-        super().__init__()
-        self.hello = hello
+def test_simple_event_source():
+    class PositiveNumber(Entity):
+        def __init__(self, num):
+            self.num = num
+            super().__init__()
 
-    @mutate
-    def change_hello(self, hello, frank=1):
-        if hello > 0:
-            raise Exception('whatever')
+        @mutate
+        def change_num(self, num, other=1):
+            if num < 0:
+                raise Exception('Can only be positive')
+            self.num = num
+
+    t = PositiveNumber(1)
+    with nt.assert_raises(UnexpectedMutationError):
+        t.num = 10
+    t.change_num(10)
+    nt.assert_equal(t.num, 10)
+    init_event = t._events[0]
+    nt.assert_dict_equal(init_event.__dict__, {'num': 1})
+    change_num_event = t._events[1]
+    nt.assert_dict_equal(change_num_event.__dict__, {'num': 10, 'other': 1})
+
+
+class SplitApply(Entity):
+    def __init__(self, var):
         with mutate.apply:
-            self.hello = hello
-        return 1
-
-t = Test('hi')
-t.change_hello(-10)
-
-
-class Bob(Entity):
-    def __init__(self, bob):
-        super().__init__()
-        self.bob = bob
+            self.var = var
 
     @mutate
-    def hello(self, bob):
-        self.bob = bob
+    def change_var(self, var):
+        with mutate.apply:
+            self.var = var
 
-class Frank(Bob):
-    def __init__(self, bob):
-        super().__init__(bob)
-        self.bob = bob
+obj = SplitApply(1)
+for ev in obj._events:
+    obj.apply(ev)
+nt.assert_equal(obj.var, 1)
 
-    def bye(self,bye):
-        self.bob = bye
-        print(bye)
+obj.change_var(10)
+for ev in obj._events[1:]:
+    obj.apply(ev)
 
-b = Bob(1)
-nt.assert_equal(b.bob, 1)
-b.hello(10)
-nt.assert_equal(b.bob, 10)
-
-f = Frank(100)
-with nt.assert_raises(UnexpectedMutationError):
-    f.bye(1)
-
-f.hello(10)
-nt.assert_equal(f.bob, 10)
+nt.assert_equal(obj.var, 10)
