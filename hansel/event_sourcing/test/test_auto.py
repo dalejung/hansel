@@ -9,14 +9,17 @@ from asttools import (
 )
 
 
-from ..auto import generate_apply_func, APPLY_TEMPLATE
+from ..auto import generate_apply_code, APPLY_TEMPLATE
 
 source = """
 with mutate.apply:
     self.bob = bob
 """
+correct = """
+with mutate.apply:
+    self.bob = event.bob
+"""
 node = quick_parse(source)
 
 
-apply_code = generate_apply_func(node, 'some_func')
-print(ast_source(apply_code))
+apply_code = generate_apply_code(node, 'some_func')
