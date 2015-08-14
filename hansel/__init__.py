@@ -1,4 +1,5 @@
 from earthdragon.typelet import *
+from earthdragon.navel import mutate
 from .value_object import ValueObject
 from .entity import Entity, mutate
 from .service import Service
