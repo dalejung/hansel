@@ -53,4 +53,4 @@ class ValueObject(metaclass=ValueObjectMeta):
         """
         Make use of earthdragon.typelets.inflate.
         """
-        inflate(self, args, kwargs, require_all=True)
+        inflate(self, args, kwargs, require_all=True, typelets_only=True)
