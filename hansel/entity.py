@@ -22,6 +22,7 @@ from earthdragon.typelet import (
     Typelet,
     gather_typelets,
     typelet_repr,
+    inflate,
     TypeletMeta
 )
 
@@ -32,6 +33,9 @@ class EntityMeta(NavelMeta, TypeletMeta):
 
 class Entity(Navel, metaclass=EntityMeta):
     __repr__ = typelet_repr
+
+    def __init__(self, *args, **kwargs):
+        inflate(self, args, kwargs)
 
 from .event_sourcing.auto import ApplyMagic, EventSourcer, auto_wrapper
 # entity specific mutate
