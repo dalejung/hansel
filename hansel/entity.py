@@ -18,9 +18,14 @@ from earthdragon.navel import (
     features,
     UnexpectedMutationError,
 )
-from earthdragon.typelet import Typelet, gather_typelets, typelet_repr
+from earthdragon.typelet import (
+    Typelet,
+    gather_typelets,
+    typelet_repr,
+    TypeletMeta
+)
 
-class EntityMeta(NavelMeta):
+class EntityMeta(NavelMeta, TypeletMeta):
     def __new__(cls, name, bases, dct):
         return super(EntityMeta, cls).__new__(cls, name, bases, dct)
 
