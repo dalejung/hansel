@@ -41,15 +41,16 @@ class GrandChild(Child):
         super().__init__(id, id2)
 
 
-
 def test_hansle_typelets():
     """
     hansel typelets should be a complete list. this means
     it will contain superclass typelets as well.
     """
     nt.assert_count_equal(Parent._earthdragon_typelets, ['id'])
-    nt.assert_count_equal(Child._earthdragon_typelets, ['id', 'id2'])
-    nt.assert_count_equal(GrandChild._earthdragon_typelets, ['id', 'id2', 'id3'])
+    nt.assert_count_equal(Child._earthdragon_merged_typelets, ['id', 'id2'])
+    nt.assert_count_equal(Child._earthdragon_typelets, [ 'id2'])
+    nt.assert_count_equal(GrandChild._earthdragon_merged_typelets, ['id', 'id2', 'id3'])
+    nt.assert_count_equal(GrandChild._earthdragon_typelets, ['id3'])
 
 def test_subclass_values():
     gc = GrandChild(100, 200, 300)
