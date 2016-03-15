@@ -1,5 +1,4 @@
 import ast
-import astor
 
 from asttools import (
     Matcher,

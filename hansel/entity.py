@@ -1,6 +1,5 @@
 import inspect
 import ast
-import astor
 from six import iteritems, with_metaclass
 from functools import wraps
 
