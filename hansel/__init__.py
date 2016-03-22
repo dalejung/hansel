@@ -1,5 +1,5 @@
-import earthdragon.typelet
-print(earthdragon.typelet)
+import earthdragon
+print(earthdragon)
 from earthdragon.typelet import *
 from earthdragon.navel import mutate
 from .value_object import ValueObject
