@@ -41,6 +41,8 @@ class ValueObject(metaclass=ValueObjectMeta):
 
     __repr__ = typelet_repr
 
+    __require_all__ = True
+
     def __setattr__(self, name, value):
         # locking again should be fine. This happens with subclasses
         # calling super().__init__
@@ -53,4 +55,5 @@ class ValueObject(metaclass=ValueObjectMeta):
         """
         Make use of earthdragon.typelets.inflate.
         """
-        inflate(self, args, kwargs, require_all=True, typelets_only=True)
+        require_all = self.__require_all__
+        inflate(self, args, kwargs, require_all=require_all, typelets_only=True)
