@@ -1,6 +1,5 @@
 import uuid
 import inspect
-import astor
 import ast
 import types
 from unittest import expectedFailure

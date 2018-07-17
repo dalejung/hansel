@@ -1,6 +1,5 @@
 import inspect
 import ast
-import astor
 from six import iteritems, with_metaclass
 from functools import wraps
 
@@ -18,15 +17,24 @@ from earthdragon.navel import (
     features,
     UnexpectedMutationError,
 )
-from earthdragon.typelet import Typelet, gather_typelets, typelet_repr
+from earthdragon.typelet import (
+    Typelet,
+    gather_typelets,
+    typelet_repr,
+    inflate,
+    TypeletMeta
+)
 
-class EntityMeta(NavelMeta):
+class EntityMeta(NavelMeta, TypeletMeta):
     def __new__(cls, name, bases, dct):
         return super(EntityMeta, cls).__new__(cls, name, bases, dct)
 
 
 class Entity(Navel, metaclass=EntityMeta):
     __repr__ = typelet_repr
+
+    def __init__(self, *args, **kwargs):
+        inflate(self, args, kwargs)
 
 from .event_sourcing.auto import ApplyMagic, EventSourcer, auto_wrapper
 # entity specific mutate

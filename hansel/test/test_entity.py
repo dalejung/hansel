@@ -26,28 +26,49 @@ def test_simple_event_source():
     nt.assert_dict_equal(change_num_event.__dict__, {'num': 10, 'other': 1})
 
 
-class SplitApply(Entity):
-    var = Int()
+def test_split_apply():
+    class SplitApply(Entity):
+        var = Int()
 
-    def __init__(self, var):
-        with mutate.apply:
-            self.var = var
+        def __init__(self, var):
+            with mutate.apply:
+                self.var = var
 
-    @mutate
-    def change_var(self, var):
-        with mutate.apply:
-            self.var = var
+        @mutate
+        def change_var(self, var):
+            with mutate.apply:
+                self.var = var
 
-obj = SplitApply(1)
-for ev in obj._events:
-    obj.apply(ev)
-nt.assert_equal(obj.var, 1)
+    obj = SplitApply(1)
+    for ev in obj._events:
+        obj.apply(ev)
+    nt.assert_equal(obj.var, 1)
 
-obj.change_var(10)
-for ev in obj._events[1:]:
-    obj.apply(ev)
+    obj.change_var(10)
+    for ev in obj._events[1:]:
+        obj.apply(ev)
 
-nt.assert_equal(obj.var, 10)
+    nt.assert_equal(obj.var, 10)
 
-new_obj = SplitApply.load_from_history(obj._events)
-nt.assert_equal(new_obj.var, obj.var)
+    new_obj = SplitApply.load_from_history(obj._events)
+    nt.assert_equal(new_obj.var, obj.var)
+
+def test_default_init():
+    class DefaultEntity(Entity):
+        id = Int(required=True)
+        age = Int()
+        def_num = Int(default=100)
+
+        @mutate
+        def change_age(self, age):
+            self.age = age
+
+    de = DefaultEntity(10)
+    nt.assert_equal(de.id, 10)
+    nt.assert_equal(de.def_num, 100)
+
+    with nt.assert_raises(UnexpectedMutationError):
+        de.age = 10
+
+    de.change_age(98)
+    nt.assert_equal(de.age, 98)

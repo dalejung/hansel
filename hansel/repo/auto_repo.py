@@ -50,6 +50,7 @@ def generate_find_funcs(aggregate, indexes, dct):
             if not res:
                 return res
 
+            # attr is unique, don't return set but just single obj
             if unique:
                 res = next(iter(res.values()))
             return res

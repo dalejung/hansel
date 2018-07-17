@@ -41,15 +41,16 @@ class GrandChild(Child):
         super().__init__(id, id2)
 
 
-
 def test_hansle_typelets():
     """
     hansel typelets should be a complete list. this means
     it will contain superclass typelets as well.
     """
     nt.assert_count_equal(Parent._earthdragon_typelets, ['id'])
-    nt.assert_count_equal(Child._earthdragon_typelets, ['id', 'id2'])
-    nt.assert_count_equal(GrandChild._earthdragon_typelets, ['id', 'id2', 'id3'])
+    nt.assert_count_equal(Child._earthdragon_merged_typelets, ['id', 'id2'])
+    nt.assert_count_equal(Child._earthdragon_typelets, [ 'id2'])
+    nt.assert_count_equal(GrandChild._earthdragon_merged_typelets, ['id', 'id2', 'id3'])
+    nt.assert_count_equal(GrandChild._earthdragon_typelets, ['id3'])
 
 def test_subclass_values():
     gc = GrandChild(100, 200, 300)
@@ -80,3 +81,34 @@ def test_init():
 
     with nt.assert_raises(InvalidInitInvocation):
         obj = DefaultInit(1, "DALE", 123)
+
+def test_require_all():
+    class DefaultInit(ValueObject):
+        id = Int()
+        name = Unicode()
+
+    obj = DefaultInit(1, "Dale")
+    obj = DefaultInit(name="Dale", id=1)
+
+    with nt.assert_raises(InvalidInitInvocation):
+        obj = DefaultInit()
+
+    class Loose(ValueObject):
+        __require_all__ = False
+        id = Int()
+        name = Unicode()
+
+    obj = Loose(1)
+    nt.assert_equal(obj.id, 1)
+    nt.assert_is_none(obj.name)
+
+    # still strict mutation
+    with nt.assert_raises(IllegalMutation):
+        obj.id = 3
+
+    # still won't accept extra args
+    with nt.assert_raises(InvalidInitInvocation):
+        Loose(1, "DALE", 123)
+
+    # no error
+    Loose()
