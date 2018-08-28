@@ -10,7 +10,6 @@ from asttools import (
     coroutine
 )
 from asttools.function import (
-    get_invoked_args,
     get_source,
     create_function,
     func_args_realizer,
@@ -18,6 +17,7 @@ from asttools.function import (
 )
 from earthdragon.feature import Attr
 from earthdragon.navel import mutate
+from earthdragon.func_util import get_invoked_args
 
 matcher = Matcher('with mutate.apply: _any_')
 

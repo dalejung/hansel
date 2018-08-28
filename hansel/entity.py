@@ -5,11 +5,11 @@ from functools import wraps
 
 from asttools import graph_walk, Matcher, delete_node, quick_parse
 from asttools.function import (
-    get_invoked_args,
     get_source,
     create_function,
     func_args_realizer
 )
+from earthdragon.func_util import get_invoked_args
 from earthdragon.navel import (
     Navel,
     NavelMeta,
